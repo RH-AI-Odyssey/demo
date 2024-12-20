@@ -23,7 +23,7 @@ ssh lab-user@bastion.xxxxx.sandboxXXXX.opentlc.com
 ```
 clone this repository
 ```
-git clone https://gitlab.consulting.redhat.com/ai-odyssey-2025/byte-me/demo.git
+git clone https://github.com/RH-AI-Odyssey/demo.git
 cd demo
 ```
 Run the installer script
