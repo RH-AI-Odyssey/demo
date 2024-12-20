@@ -1,0 +1,9 @@
+app: demo-operators-comps
+namespace: demo-operators-comps
+
+## This is replace using argocd app set demo-operators-comps -p domain=$OCP_DOMAIN in install file
+domain: app.cluster.com
+
+openshiftDevSpaces: 
+  name: devspaces
+  namespace: demo-devspaces

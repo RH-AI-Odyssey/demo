@@ -1,0 +1,4 @@
+app: demo-operator-gitops
+namespace: openshift-operators
+
+openshiftGitops: openshift-gitops

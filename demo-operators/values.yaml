@@ -1,0 +1,14 @@
+app: demo-operators
+namespace: openshift-operators
+
+authorino: authorino-operator
+camelK: camel-k
+developerHub: developer-hub
+elasticsearch: elasticsearch
+nodeFeatureDiscovery: node-feature-discovery
+nvidiaGPU: nvidia-gpu
+openshiftAI: openshift-ai
+openshiftDevSpaces: devspaces
+openshiftPipelines: openshift-pipelines-operator-rh
+openshiftServerless: serverless-operator
+openshiftServiceMesh: servicemeshoperator

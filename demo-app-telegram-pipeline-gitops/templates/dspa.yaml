@@ -1,0 +1,53 @@
+apiVersion: datasciencepipelinesapplications.opendatahub.io/v1alpha1
+kind: DataSciencePipelinesApplication
+metadata:
+  name: dspa
+  namespace: {{ .Values.app }}
+  labels:
+    app: {{ .Values.app }}
+spec:
+  apiServer:
+    caBundleFileMountPath: ''
+    stripEOF: true
+    dbConfigConMaxLifetimeSec: 120
+    applyTektonCustomResource: true
+    caBundleFileName: ''
+    deploy: true
+    artifactSignedURLExpirySeconds: 60
+    enableSamplePipeline: false
+    autoUpdatePipelineDefaultVersion: true
+    archiveLogs: false
+    terminateStatus: Cancelled
+    enableOauth: true
+    trackArtifacts: true
+    collectMetrics: true
+    injectDefaultScript: true
+  database:
+    disableHealthCheck: false
+    mariaDB:
+      deploy: true
+      pipelineDBName: mlpipeline
+      pvcSize: 10Gi
+      username: mlpipeline
+  dspVersion: v2
+  objectStorage:
+    disableHealthCheck: false
+    enableExternalRoute: false
+    externalStorage:
+      basePath: ''
+      bucket: telegram-pipelines
+      host: 'demo-app-minio.demo-app-minio.svc.cluster.local:9000'
+      port: ''
+      region: my-region
+      s3CredentialsSecret:
+        accessKey: AWS_ACCESS_KEY_ID
+        secretKey: AWS_SECRET_ACCESS_KEY
+        secretName: aws-connection-minio-telegram-pipelines
+      scheme: http
+  persistenceAgent:
+    deploy: true
+    numWorkers: 2
+  podToPodTLS: false
+  scheduledWorkflow:
+    cronScheduleTimezone: UTC
+    deploy: true

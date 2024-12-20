@@ -1,0 +1,24 @@
+kind: GitLab
+apiVersion: apps.gitlab.com/v1beta1
+metadata:
+  name: gitlab
+  namespace: {{ .Values.namespace }}
+spec:
+  chart:
+    version: {{ .Values.version }}
+    values:
+      certmanager-issuer:
+        email: username@openshift.com # update with your email here
+      configureCertmanager:
+        install: false
+      global:
+        hosts:
+          domain: {{ .Values.domain }} # update with the cluster domain here.
+        ingress:
+          annotations:
+            route.openshift.io/termination: edge
+            kubernetes.io/tls-acme: true
+          class: none
+          # configureCertmanager: true
+      nginx-ingress:
+        enabled: false

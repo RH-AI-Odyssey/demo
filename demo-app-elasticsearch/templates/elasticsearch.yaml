@@ -1,0 +1,39 @@
+kind: Elasticsearch
+apiVersion: elasticsearch.k8s.elastic.co/v1
+metadata:
+  name: {{ .Values.app }}
+  namespace: {{ .Values.app }}
+spec:
+  version: {{ .Values.version }}
+  nodeSets:
+    - name: default
+      count: {{ .Values.count }}
+      podTemplate:
+        metadata:
+          labels:
+            app: {{ .Values.app }}
+        spec:
+          containers:
+            - name: elasticsearch
+              resources:
+                requests:
+                  cpu: {{ .Values.requests.cpu }}
+                  memory: {{ .Values.requests.memory }}
+                limits:
+                  cpu: {{ .Values.limits.cpu }}
+                  memory: {{ .Values.limits.memory }}
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: {{ .Values.storage }}
+      config:
+        node.roles:
+          - master
+          - data
+        node.attr.attr_name: attr_value
+        node.store.allow_mmap: false

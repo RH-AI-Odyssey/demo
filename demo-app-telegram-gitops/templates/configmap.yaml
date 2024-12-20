@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.app }}
+  namespace: {{ .Values.app }}
+  labels:
+    app: {{ .Values.app }}
+    app.kubernetes.io/part-of: argocd
+data:
+  ELASTICSEARCH_HOST: https://demo-app-elasticsearch-es-default.demo-app-elasticsearch.svc.cluster.local:9200
+  ELASTICSEARCH_USERNAME: elastic
+  ELASTICSEARCH_PASSWORD: elasticsearch_password
+  ELASTICSEARCH_DOCUMENT_INDEX: document
+  ELASTICSEARCH_TELEGRAM_INDEX: telegram
+  TENSORFLOW_HUB_EMBEDDING_MODEL_URL: https://www.kaggle.com/models/google/universal-sentence-encoder/TensorFlow2/multilingual-large/2
+  GOOGLE_API_KEY: 'GOOGLE_API_KEY'
+  GOOGLE_MODEL: gemini-1.5-pro
+  GOOGLE_MODEL_MAX_TOKENS: ‘512’
+  TELEGRAM_TOKEN: 'TELEGRAM_TOKEN'
+  MISTRAL_INFERENCE_SERVICE: http://mistral-7b-instruct-v0-3.demo-models-deploy.svc.cluster.local

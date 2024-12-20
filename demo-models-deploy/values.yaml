@@ -1,0 +1,18 @@
+name: demo-models-deploy
+namespace: demo-models-deploy
+
+mistral:
+  modelName: mistral-7b-instruct-v0-3
+  image: "vllm/vllm-openai:latest"
+  resources:
+    limits:
+      cpu: '8'
+      memory: 24Gi
+      gpu: '1'
+    requests:
+      cpu: '4'
+      memory: 16Gi
+      gpu: '1'
+  storage:
+      size: 40Gi
+  args: "vllm serve mistralai/Mistral-7B-Instruct-v0.3 --trust-remote-code --enable-chunked-prefill --max_num_batched_tokens 1024"

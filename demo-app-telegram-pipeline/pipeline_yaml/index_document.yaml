@@ -1,0 +1,340 @@
+# PIPELINE DEFINITION
+# Name: index-document
+# Description: Index a PDF document in Elasticsearch
+# Inputs:
+#    elasticsearch_document_index: str
+#    elasticsearch_host: str
+#    elasticsearch_password: str
+#    elasticsearch_username: str
+#    pvc_access_modes: list
+#    pvc_name: str
+#    pvc_size: str
+#    pvc_storage_class: str
+#    s3_access_key_id: str
+#    s3_bucket: str
+#    s3_endpoint_url: str
+#    s3_file: str
+#    s3_region: str
+#    s3_secret_access_key: str
+#    s3_service_name: str
+#    tensorflow_hub_embedding_model_url: str
+components:
+  comp-createpvc:
+    executorLabel: exec-createpvc
+    inputDefinitions:
+      parameters:
+        access_modes:
+          description: 'AccessModes to request for the provisioned PVC. May
+
+            be one or more of ``''ReadWriteOnce''``, ``''ReadOnlyMany''``, ``''ReadWriteMany''``,
+            or
+
+            ``''ReadWriteOncePod''``. Corresponds to `PersistentVolumeClaim.spec.accessModes
+            <https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes>`_.'
+          parameterType: LIST
+        annotations:
+          description: Annotations for the PVC's metadata. Corresponds to `PersistentVolumeClaim.metadata.annotations
+            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaim>`_.
+          isOptional: true
+          parameterType: STRUCT
+        pvc_name:
+          description: 'Name of the PVC. Corresponds to `PersistentVolumeClaim.metadata.name
+            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaim>`_.
+            Only one of ``pvc_name`` and ``pvc_name_suffix`` can
+
+            be provided.'
+          isOptional: true
+          parameterType: STRING
+        pvc_name_suffix:
+          description: 'Prefix to use for a dynamically generated name, which
+
+            will take the form ``<argo-workflow-name>-<pvc_name_suffix>``. Only one
+
+            of ``pvc_name`` and ``pvc_name_suffix`` can be provided.'
+          isOptional: true
+          parameterType: STRING
+        size:
+          description: The size of storage requested by the PVC that will be provisioned.
+            For example, ``'5Gi'``. Corresponds to `PersistentVolumeClaim.spec.resources.requests.storage
+            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaimSpec>`_.
+          parameterType: STRING
+        storage_class_name:
+          defaultValue: ''
+          description: 'Name of StorageClass from which to provision the PV
+
+            to back the PVC. ``None`` indicates to use the cluster''s default
+
+            storage_class_name. Set to ``''''`` for a statically specified PVC.'
+          isOptional: true
+          parameterType: STRING
+        volume_name:
+          description: 'Pre-existing PersistentVolume that should back the
+
+            provisioned PersistentVolumeClaim. Used for statically
+
+            specified PV only. Corresponds to `PersistentVolumeClaim.spec.volumeName
+            <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/persistent-volume-claim-v1/#PersistentVolumeClaimSpec>`_.'
+          isOptional: true
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        name:
+          parameterType: STRING
+  comp-download-document:
+    executorLabel: exec-download-document
+    inputDefinitions:
+      parameters:
+        pvc_directory:
+          parameterType: STRING
+        s3_access_key_id:
+          parameterType: STRING
+        s3_bucket:
+          parameterType: STRING
+        s3_endpoint_url:
+          parameterType: STRING
+        s3_file:
+          parameterType: STRING
+        s3_region:
+          parameterType: STRING
+        s3_secret_access_key:
+          parameterType: STRING
+        s3_service_name:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-index-document:
+    executorLabel: exec-index-document
+    inputDefinitions:
+      parameters:
+        elasticsearch_document_index:
+          parameterType: STRING
+        elasticsearch_host:
+          parameterType: STRING
+        elasticsearch_password:
+          parameterType: STRING
+        elasticsearch_username:
+          parameterType: STRING
+        pvc_file:
+          parameterType: STRING
+        tensorflow_hub_embedding_model_url:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-createpvc:
+      container:
+        image: argostub/createpvc
+    exec-download-document:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - download_document
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.8.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'boto3' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef download_document(\n    s3_service_name      : str,\n    s3_endpoint_url\
+          \      : str,\n    s3_access_key_id     : str,\n    s3_secret_access_key\
+          \ : str,\n    s3_region            : str,\n    s3_bucket            : str,\n\
+          \    s3_file              : str,\n    pvc_directory        : str\n) -> str:\n\
+          \n    from boto3 import client\n    from os    import path\n\n    pvc_file\
+          \ = path.join(pvc_directory, path.basename(s3_file))\n\n    s3_client =\
+          \ client(\n        service_name          = s3_service_name,\n        endpoint_url\
+          \          = s3_endpoint_url,\n        aws_access_key_id     = s3_access_key_id,\n\
+          \        aws_secret_access_key = s3_secret_access_key,\n        region_name\
+          \           = s3_region\n    )\n\n    s3_client.download_file(\n       \
+          \ Bucket   = s3_bucket,\n        Key      = s3_file,\n        Filename =\
+          \ pvc_file\n    )\n\n    return pvc_file\n\n"
+        image: registry.access.redhat.com/ubi9/python-311:latest
+    exec-index-document:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - index_document
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.8.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'elasticsearch'\
+          \ 'langchain' 'langchain-community' 'langchain-elasticsearch' 'pypdf' 'tensorflow'\
+          \ 'tensorflow-hub' 'tensorflow-text' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef index_document(\n    elasticsearch_host                 : str,\n\
+          \    elasticsearch_username             : str,\n    elasticsearch_password\
+          \             : str,\n    elasticsearch_document_index       : str,\n  \
+          \  tensorflow_hub_embedding_model_url : str,\n    pvc_file             \
+          \              : str\n) -> None:\n\n    from elasticsearch             \
+          \           import Elasticsearch\n    from langchain_community.document_loaders\
+          \ import PyPDFLoader\n    from langchain_community.embeddings       import\
+          \ TensorflowHubEmbeddings\n    from langchain_community.vectorstores   \
+          \  import ElasticsearchStore\n\n    pdf_loader = PyPDFLoader(\n        file_path\
+          \ = pvc_file\n    )\n\n    documents = pdf_loader.load_and_split()\n\n \
+          \   elasticsearch_client = Elasticsearch(\n        hosts        = elasticsearch_host,\n\
+          \        basic_auth   = (elasticsearch_username, elasticsearch_password),\n\
+          \        verify_certs = False\n    )\n\n    embedding = TensorflowHubEmbeddings(\n\
+          \        model_url = tensorflow_hub_embedding_model_url\n    )\n\n    elasticsearch_store\
+          \ = ElasticsearchStore(\n        es_connection = elasticsearch_client,\n\
+          \        index_name    = elasticsearch_document_index,\n        embedding\
+          \     = embedding\n    )\n\n    for document in documents:\n\n        elasticsearch_store.add_documents(\n\
+          \            documents = [document]\n        )\n\n    elasticsearch_store.client.indices.refresh(\n\
+          \        index = elasticsearch_document_index\n    )\n\n"
+        image: registry.access.redhat.com/ubi9/python-311:latest
+pipelineInfo:
+  description: Index a PDF document in Elasticsearch
+  name: index-document
+root:
+  dag:
+    tasks:
+      createpvc:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-createpvc
+        inputs:
+          parameters:
+            access_modes:
+              componentInputParameter: pvc_access_modes
+            pvc_name:
+              componentInputParameter: pvc_name
+            size:
+              componentInputParameter: pvc_size
+            storage_class_name:
+              componentInputParameter: pvc_storage_class
+        taskInfo:
+          name: createpvc
+      download-document:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-download-document
+        dependentTasks:
+        - createpvc
+        inputs:
+          parameters:
+            pvc_directory:
+              runtimeValue:
+                constant: /pipeline/index_document
+            s3_access_key_id:
+              componentInputParameter: s3_access_key_id
+            s3_bucket:
+              componentInputParameter: s3_bucket
+            s3_endpoint_url:
+              componentInputParameter: s3_endpoint_url
+            s3_file:
+              componentInputParameter: s3_file
+            s3_region:
+              componentInputParameter: s3_region
+            s3_secret_access_key:
+              componentInputParameter: s3_secret_access_key
+            s3_service_name:
+              componentInputParameter: s3_service_name
+        taskInfo:
+          name: download-document
+      index-document:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-index-document
+        dependentTasks:
+        - download-document
+        inputs:
+          parameters:
+            elasticsearch_document_index:
+              componentInputParameter: elasticsearch_document_index
+            elasticsearch_host:
+              componentInputParameter: elasticsearch_host
+            elasticsearch_password:
+              componentInputParameter: elasticsearch_password
+            elasticsearch_username:
+              componentInputParameter: elasticsearch_username
+            pvc_file:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: download-document
+            tensorflow_hub_embedding_model_url:
+              componentInputParameter: tensorflow_hub_embedding_model_url
+        taskInfo:
+          name: index-document
+  inputDefinitions:
+    parameters:
+      elasticsearch_document_index:
+        parameterType: STRING
+      elasticsearch_host:
+        parameterType: STRING
+      elasticsearch_password:
+        parameterType: STRING
+      elasticsearch_username:
+        parameterType: STRING
+      pvc_access_modes:
+        parameterType: LIST
+      pvc_name:
+        parameterType: STRING
+      pvc_size:
+        parameterType: STRING
+      pvc_storage_class:
+        parameterType: STRING
+      s3_access_key_id:
+        parameterType: STRING
+      s3_bucket:
+        parameterType: STRING
+      s3_endpoint_url:
+        parameterType: STRING
+      s3_file:
+        parameterType: STRING
+      s3_region:
+        parameterType: STRING
+      s3_secret_access_key:
+        parameterType: STRING
+      s3_service_name:
+        parameterType: STRING
+      tensorflow_hub_embedding_model_url:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.8.0
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-download-document:
+          pvcMount:
+          - componentInputParameter: pvc_name
+            mountPath: /pipeline/index_document
+        exec-index-document:
+          pvcMount:
+          - componentInputParameter: pvc_name
+            mountPath: /pipeline/index_document

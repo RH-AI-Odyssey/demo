@@ -1,0 +1,20 @@
+{
+  "models": [
+    {
+      "title": "OpenAI-compatible granite8b MaaS",
+    "provider": "openai",
+    "model": "granite-8b-code-instruct-128k",
+    "apiKey": "<CODE>",
+    "apiBase": "https://granite-8b-code-instruct-maas-apicast-production.apps.prod.rhoai.rh-aiservices-bu.com:443/v1"
+      }    
+    ],
+    
+  "tabAutocompleteModel": {
+    "title": "OpenAI-compatible granite8b MaaS",
+    "provider": "openai",
+    "model": "granite-8b-code-instruct-128k",
+    "apiKey": "<CODE>", 
+    "apiBase": "https://granite-8b-code-instruct-maas-apicast-production.apps.prod.rhoai.rh-aiservices-bu.com:443/v1"
+  },
+  "allowAnonymousTelemetry": false
+}

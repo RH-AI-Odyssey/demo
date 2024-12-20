@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.mistral.modelName }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.mistral.modelName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.mistral.modelName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.mistral.modelName }}
+    spec:
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      volumes:
+      - name: models-cache
+        persistentVolumeClaim:
+          claimName: {{ .Values.mistral.modelName }}
+      # vLLM needs to access the host's shared memory for tensor parallel inference.
+      - name: shm
+        emptyDir:
+          medium: Memory
+          sizeLimit: "2Gi"
+      containers:
+      - name: {{ .Values.mistral.modelName }}
+        image: {{ .Values.mistral.image }}
+        command: ["/bin/sh", "-c"]
+        args: [
+          {{ .Values.mistral.args }}
+        ]
+        env:
+        - name: HF_HOME
+          value: /models-cache
+        - name: HUGGING_FACE_HUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token-secret
+              key: token
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: {{ .Values.mistral.resources.limits.cpu }}
+            memory: {{ .Values.mistral.resources.limits.memory }}
+            nvidia.com/gpu: {{ .Values.mistral.resources.limits.gpu }}
+          requests:
+            cpu: {{ .Values.mistral.resources.requests.cpu }}
+            memory: {{ .Values.mistral.resources.requests.memory }}
+            nvidia.com/gpu: {{ .Values.mistral.resources.requests.gpu }}
+        volumeMounts:
+        - mountPath: /models-cache
+          name: models-cache
+        - name: shm
+          mountPath: /dev/shm
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 5

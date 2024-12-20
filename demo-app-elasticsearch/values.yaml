@@ -1,0 +1,14 @@
+app: demo-app-elasticsearch
+version: 8.16.0
+
+count: 3
+
+requests:
+  cpu: 1
+  memory: 4Gi
+
+limits:
+  cpu: 2
+  memory: 8Gi
+
+storage: 30Gi

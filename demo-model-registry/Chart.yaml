@@ -1,0 +1,7 @@
+apiVersion: v2
+
+name: demo-model-registry
+description: A Helm chart for model registry on OpenShift
+
+type: application
+version: 0.0.1

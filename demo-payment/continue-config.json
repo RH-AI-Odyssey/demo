@@ -1,0 +1,12 @@
+{
+    "models": [
+      {
+        "title": "Mistral",
+        "apiKey": "EMPTY",
+        "model": "mistralai/Mistral-7B-Instruct-v0.3",
+        "apiBase": "http://mistral-7b-instruct-v0-3.demo-models-deploy.svc.cluster.local/v1",
+        "provider": "openai"
+      }
+    ],
+    "allowAnonymousTelemetry": false
+  }

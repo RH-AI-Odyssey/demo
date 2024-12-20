@@ -1,0 +1,49 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: app-config-rhdh
+  namespace: {{ .Values.namespace }}
+  labels:
+    rhdh.redhat.com/ext-config-sync: 'true'
+  annotations:
+    rhdh.redhat.com/backstage-name: developer-hub
+data:
+  app-config-rhdh.yaml: |
+    app:
+      title: Byte me
+      baseUrl: https://backstage-developer-hub-demo-operators-comps.{{ .Values.domain }}
+    backend:
+      baseUrl: https://backstage-developer-hub-demo-operators-comps.{{ .Values.domain }}
+      cors:
+        origin: https://backstage-developer-hub-demo-operators-comps.{{ .Values.domain }}
+    openai:
+      baseURL: http://embedder/v1/
+    dynamicPlugins:
+      frontend:
+        internal.backstage-plugin-ai-assistant:
+          appIcons:
+            - name: assistant
+              importName: Assistant
+          dynamicRoutes:
+            - path: /chatgpt
+              importName: ChatGPTFrontendPage
+              menuItem:
+                text: 'AI Assistant'
+                icon: assistant
+    integrations:
+      gitlab:
+        - host: gitlab.{{ .Values.domain }}
+          token: {{ .Values.gitlab_token }}
+          apiBaseUrl: https://gitlab.{{ .Values.domain }}/api/v4
+    auth:
+      environment: development
+      providers:
+        guest:
+          dangerouslyAllowOutsideDevelopment: true
+    catalog:
+      locations:
+        - type: url
+          target: https://{{ .Values.gitlab_route }}/root/demo-payment/-/blob/main/catalog-info.yaml
+          rules:
+          - allow: [Component, API, Location, Template, User, Group]
+

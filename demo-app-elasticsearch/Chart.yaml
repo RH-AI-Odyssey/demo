@@ -1,0 +1,8 @@
+apiVersion: v2
+
+name: demo-app-elasticsearch
+description: A Helm chart for deploying Elasticsearch to OpenShift
+
+type: application
+version: 0.0.1
+appVersion: "8.16.0"

@@ -1,0 +1,44 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: "demo-payment"
+  description: "Very good description here"
+  annotations:
+    backstage.io/source-location: url:https://gitlab_route/root/demo-payment
+    gitlab.com/project-slug: gitlab/demo-payment
+  tags:
+    - java
+    - quarkus
+  links:
+    - url: https://devspaces_route/#https://gitlab_route/root/demo-payment
+      title: OpenShift Dev Spaces (VS Code)
+      icon: web
+    - url: https://devspaces_route/#https://gitlab_route/root/demo-payment?che-editor=che-incubator/che-idea/latest
+      title: OpenShift Dev Spaces (JetBrains IntelliJ)
+      icon: web
+spec:
+  type: service
+  lifecycle: production
+  owner: "user:tarcisio"
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: tarcisio
+spec:
+  profile:
+    displayName: Tarcisio Oliveira
+    email: tarolive@redhat.com
+  memberOf: [team-ds]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: team-ds
+  description: Data Scientist
+spec:
+  type: business-unit
+  profile:
+    displayName: Data Scientist
+    email: ds@example.com
+  children: []

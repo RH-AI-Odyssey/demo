@@ -1,0 +1,22 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dynamic-plugins-rhdh
+  namespace: {{ .Values.namespace }}
+  labels:
+    rhdh.redhat.com/ext-config-sync: 'true'
+  annotations:
+    rhdh.redhat.com/backstage-name: developer-hub
+data:
+  dynamic-plugins.yaml: |
+    includes:
+      - dynamic-plugins.default.yaml
+    plugins:
+      - package: ./dynamic-plugins/dist/backstage-plugin-catalog-backend-module-gitlab-dynamic
+        disabled: false
+      - package: 'http://plugin-registry:8080/internal-backstage-plugin-ai-assistant-backend-dynamic-0.1.0.tgz'
+        disabled: false
+        integrity: 'sha512-UmjQf0ZWqi9tSd8dlFtYbsgkcOSLVU3R7idhSbFx4x/GCXESrs775/ByAIap6BetIQja8xhcFVCar7Ai5XvCFQ=='
+      - package: 'http://plugin-registry:8080/internal-backstage-plugin-ai-assistant-dynamic-0.1.0.tgz'
+        disabled: false
+        integrity: 'sha512-JSvJlZmezQVGG0f+4Qb8as7RfZl5uKfDiTh5xq+h6s5Wo+gLoGoP2OsNSW9z6VsRFQ5Fm0WTTqnTuTHHGqte9Q=='

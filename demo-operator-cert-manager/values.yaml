@@ -1,0 +1,2 @@
+app: openshift-cert-manager-operator
+namespace: cert-manager-operator

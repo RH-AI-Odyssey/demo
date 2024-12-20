@@ -1,0 +1,7 @@
+apiVersion: v2
+
+name: demo-operator-gitops
+description: A Helm chart for deploying OpenShift Gitops to OpenShift
+
+type: application
+version: 0.0.1

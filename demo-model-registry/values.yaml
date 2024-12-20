@@ -1,0 +1,6 @@
+app: demo-model-registry
+namespace: rhoai-model-registries
+
+database: 
+  name: mysql
+  size: 20Gi

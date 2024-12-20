@@ -1,0 +1,7 @@
+apiVersion: v2
+
+name: demo-app-telegram-pipeline
+description: A Helm chart for deploying Demo App Telegram Pipeline to OpenShift
+
+type: application
+version: 0.0.1

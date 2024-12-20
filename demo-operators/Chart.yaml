@@ -1,0 +1,7 @@
+apiVersion: v2
+
+name: demo-operators
+description: A Helm chart for deploying a set of operators to OpenShift
+
+type: application
+version: 0.0.1

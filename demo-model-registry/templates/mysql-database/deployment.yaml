@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.database.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.database.name }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.database.name }}
+    spec:
+      containers:
+      - args:
+            - --datadir
+            - /var/lib/mysql/datadir
+            - --default-authentication-plugin=mysql_native_password
+        image: mysql:8.2.0
+        name: {{ .Values.database.name }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.database.name }}-secret
+              key: password
+        ports:
+        - containerPort: 3306
+          name: {{ .Values.database.name }}
+        volumeMounts:
+        - name: {{ .Values.database.name }}-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: {{ .Values.database.name }}-persistent-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.database.name }}-pvc-claim

@@ -1,0 +1,17 @@
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  annotations:
+    include.release.openshift.io/ibm-cloud-managed: 'true'
+    include.release.openshift.io/self-managed-high-availability: 'true'
+    release.openshift.io/create-only: 'true'
+  name: cluster
+  namespace: {{ .Values.namespace }}
+spec:
+  identityProviders:
+    - htpasswd:
+        fileData:
+          name: {{ .Values.name }}
+      mappingMethod: claim
+      name: htpasswd
+      type: HTPasswd
