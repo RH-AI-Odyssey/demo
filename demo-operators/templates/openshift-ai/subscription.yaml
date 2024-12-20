@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Values.app }}
 spec:
-  channel: fast
+  channel: stable-2.16
   installPlanApproval: Automatic
   name: rhods-operator
   source: redhat-operators
