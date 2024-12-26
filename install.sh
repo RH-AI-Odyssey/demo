@@ -444,6 +444,10 @@ curl --request POST --header "Authorization: Bearer ${GITLAB_ACCESS_TOKEN}" \
      --data "url=http://embedder-demo-operators-comps.${OCP_DOMAIN}/injest" 
 
 
+##### Clean & Restore #####
+git restore demo-app-telegram-gitops/templates/configmap.yaml
+git restore demo-app-telegram-pipeline-gitops/templates/configmap.yaml
+
 ##### Exit #####
 echo_task "Demo Project installed!"
 
