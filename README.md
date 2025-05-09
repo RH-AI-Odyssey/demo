@@ -12,7 +12,7 @@
 - Enable FIPS: no
 - Configure Authentication: no
 - Region: us-east-2
-- OpenShift version: 4.16
+- OpenShift version: 4.18
 - Control Plane Count: 1
 - Control Plane Instance Type: m6a.4xlarge
 
