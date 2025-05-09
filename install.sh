@@ -341,6 +341,7 @@ do
 done
 
 MINIO_API_ROUTE='https://'$(oc get route demo-app-minio-api -n demo-app-minio -o json | jq -r '.spec.host')
+MINIO_UI_ROUTE='https://'$(oc get route demo-app-minio-ui -n demo-app-minio -o json | jq -r '.spec.host')
 sleep 2
 
 mc alias set demo-minio $MINIO_API_ROUTE $MINIO_USERNAME $MINIO_PASSWORD
@@ -354,6 +355,7 @@ echo_task "deploying models & runtimes serving"
 new_project demo-models-deploy
 
 oc create secret generic hf-token-secret --from-literal=token=changeme -n demo-models-deploy
+mc mb demo-minio/models
 
 echo_task "models & runtimes serving deployed"
 
@@ -451,12 +453,12 @@ echo "GitLab"
 echo " Route: https://${GITLAB_ROUTE}"
 echo " User : ${GITLAB_ADMIN_USERNAME}"
 echo " Pass : ${GITLAB_ADMIN_PASSWORD}"
-echo " Access Token: ${GITLAB_ACCESS_TOKEN}"
 echo " Token: ${GITLAB_TOKEN}"
+echo " Access Token: ${GITLAB_ACCESS_TOKEN}"
 
 echo "Elasticsearch"
-echo " User : ${ELASTIC_USERNAME}"
-echo " Pass : ${ELASTIC_PASSWORD}"
+echo " User   : ${ELASTIC_USERNAME}"
+echo " Pass   : ${ELASTIC_PASSWORD}"
 echo " Service: ${ELASTIC_SERVICE}"
 
 echo "Developer Hub"
@@ -464,5 +466,11 @@ echo " Route: https://${RHDH_ROUTE}"
 
 echo "Dev Spaces"
 echo " Route: https://${DEVSPACES_ROUTE}"
+
+echo "Minio"
+echo "API Route: ${MINIO_API_ROUTE}"
+echo "UI Route : ${MINIO_UI_ROUTE}"
+echo "User     : ${MINIO_USERNAME}"
+echo "Pass     : ${MINIO_PASSWORD}"
 
 exit
