@@ -1,1 +1,15 @@
 app: demo-app-telegram
+
+data:
+  elasticsearchHost: https://demo-app-elasticsearch-es-default.demo-app-elasticsearch.svc.cluster.local:9200
+  elasticsearchUsername: elastic
+  elasticsearchPassword: Q7637ebKrrwGRc6r427lb8S2
+  elasticsearchDocumentIndex: document
+  elasticsearchTelegramIndex: telegram
+  tensorflowHubEmbeddingModelUrl: https://www.kaggle.com/models/google/universal-sentence-encoder/TensorFlow2/multilingual-large/2
+  googleApiKey: 'GOOGLE_API_KEY'
+  googleModel: gemini-1.5-pro
+  googleModelMaxTokens: ‘512’
+  telegramToken: 'TELEGRAM_TOKEN'
+  modelInferenceService: http://mistral-7b-instruct-v0-3.demo-models-deploy.svc.cluster.local
+  modelInferenceName: mistralai/Mistral-7B-Instruct-v0.3

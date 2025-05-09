@@ -1,13 +1,13 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: {{ .Values.openshiftAI }}
+  name: {{ .Values.webTerminal }}
   namespace: {{ .Values.namespace }}
   labels:
     app: {{ .Values.app }}
 spec:
-  channel: stable-2.19
+  channel: fast
   installPlanApproval: Automatic
-  name: rhods-operator
+  name: web-terminal
   source: redhat-operators
   sourceNamespace: openshift-marketplace

@@ -20,7 +20,8 @@ GOOGLE_MODEL                       = getenv('GOOGLE_MODEL')
 GOOGLE_MODEL_MAX_TOKENS            = getenv('GOOGLE_MODEL_MAX_TOKENS')
 TELEGRAM_TOKEN                     = getenv('TELEGRAM_TOKEN', default = 'TELEGRAM_TOKEN')
 TELEGRAM_API                       = f'https://api.telegram.org/bot{ TELEGRAM_TOKEN }'
-MISTRAL_INFERENCE_SERVICE          = getenv('MISTRAL_INFERENCE_SERVICE')
+MODEL_INFERENCE_SERVICE            = getenv('MODEL_INFERENCE_SERVICE')
+MODEL_INFERENCE_NAME               = getenv('MODEL_INFERENCE_NAME')
 
 app = Flask(__name__)
 
@@ -54,8 +55,8 @@ if GOOGLE_API_KEY and GOOGLE_API_KEY != "GOOGLE_API_KEY":
 
 mistral_llm = VLLMOpenAI(
     openai_api_key="EMPTY",
-    openai_api_base= f"{MISTRAL_INFERENCE_SERVICE}/v1",
-    model_name="mistralai/Mistral-7B-Instruct-v0.3",
+    openai_api_base= f"{MODEL_INFERENCE_SERVICE}/v1",
+    model_name= f"{MODEL_INFERENCE_NAME}",
 )
 
 mistral_retrieval_qa = RetrievalQA.from_llm(

@@ -12,7 +12,7 @@
 - Enable FIPS: no
 - Configure Authentication: no
 - Region: us-east-2
-- OpenShift version: 4.16
+- OpenShift version: 4.18
 - Control Plane Count: 1
 - Control Plane Instance Type: m6a.4xlarge
 
@@ -23,7 +23,7 @@ ssh lab-user@bastion.xxxxx.sandboxXXXX.opentlc.com
 ```
 clone this repository
 ```
-git clone https://github.com/RH-AI-Odyssey/demo.git
+git clone --branch rhoai-2.19 --single-branch https://github.com/RH-AI-Odyssey/demo.git
 cd demo
 ```
 Run the installer script
