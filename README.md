@@ -23,7 +23,7 @@ ssh lab-user@bastion.xxxxx.sandboxXXXX.opentlc.com
 ```
 clone this repository
 ```
-git clone --branch rhoai-2.19 --single-branch https://github.com/RH-AI-Odyssey/demo.git
+git clone https://github.com/RH-AI-Odyssey/demo.git
 cd demo
 ```
 Run the installer script
