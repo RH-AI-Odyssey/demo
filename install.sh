@@ -196,11 +196,11 @@ sleep 2
 echo_task "OpenShift GitOps Operator installed!"
 
 #### Cert Manager ####
-echo_task "Installing Cert Manager"
+# echo_task "Installing Cert Manager"
 
-helm install cert-manager-operator demo-operator-cert-manager --create-namespace --namespace cert-manager-operator
+# helm install cert-manager-operator demo-operator-cert-manager --create-namespace --namespace cert-manager-operator
 
-echo_task "Cert Manager installed!"
+# echo_task "Cert Manager installed!"
 
 #### GitLab ####
 echo_task "Installing GitLab"
@@ -360,14 +360,14 @@ echo_task "deploying models & runtimes serving"
 
 new_project demo-models-deploy
 
-oc create secret generic hf-token-secret --from-literal=token=changeme -n demo-models-deploy
+# oc create secret generic hf-token-secret --from-literal=token=changeme -n demo-models-deploy
 
-git lfs clone https://huggingface.co/ibm-granite/granite-3.0-2b-instruct
+# git lfs clone https://huggingface.co/ibm-granite/granite-3.0-2b-instruct
 
-mc mb demo-minio/models
-mc cp --recursive ./granite-3.0-2b-instruct/ demo-minio/models/granite-3.0-2b-instruct
+# mc mb demo-minio/models
+# mc cp --recursive ./granite-3.0-2b-instruct/ demo-minio/models/granite-3.0-2b-instruct
 
-rm -rf granite-3.0-2b-instruct/
+# rm -rf granite-3.0-2b-instruct/
 
 echo_task "models & runtimes serving deployed"
 

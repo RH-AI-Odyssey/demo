@@ -11,4 +11,5 @@ data:
   googleModel: gemini-1.5-pro
   googleModelMaxTokens: ‘512’
   telegramToken: 'TELEGRAM_TOKEN'
-  mistralInferenceService: http://mistral-7b-instruct-v0-3.demo-models-deploy.svc.cluster.local
+  modelInferenceService: http://mistral-7b-instruct-v0-3.demo-models-deploy.svc.cluster.local
+  modelInferenceName: mistralai/Mistral-7B-Instruct-v0.3

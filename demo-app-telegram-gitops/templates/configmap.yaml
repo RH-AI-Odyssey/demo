@@ -17,4 +17,5 @@ data:
   GOOGLE_MODEL: {{ .Values.data.googleModel }}
   GOOGLE_MODEL_MAX_TOKENS: {{ .Values.data.googleModelMaxTokens }}
   TELEGRAM_TOKEN: {{ .Values.data.telegramToken }}
-  MISTRAL_INFERENCE_SERVICE: {{ .Values.data.mistralInferenceService }}
+  MODEL_INFERENCE_SERVICE: {{ .Values.data.modelInferenceService }}
+  MODEL_INFERENCE_NAME: {{ .Values.data.modelInferenceName }}
