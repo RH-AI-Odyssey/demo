@@ -7,14 +7,14 @@ metadata:
     app: {{ .Values.app }}
     app.kubernetes.io/part-of: argocd
 data:
-  ELASTICSEARCH_HOST: https://demo-app-elasticsearch-es-default.demo-app-elasticsearch.svc.cluster.local:9200
-  ELASTICSEARCH_USERNAME: elastic
-  ELASTICSEARCH_PASSWORD: elasticsearch_password
-  ELASTICSEARCH_DOCUMENT_INDEX: document
-  ELASTICSEARCH_TELEGRAM_INDEX: telegram
-  TENSORFLOW_HUB_EMBEDDING_MODEL_URL: https://www.kaggle.com/models/google/universal-sentence-encoder/TensorFlow2/multilingual-large/2
-  GOOGLE_API_KEY: 'GOOGLE_API_KEY'
-  GOOGLE_MODEL: gemini-1.5-pro
-  GOOGLE_MODEL_MAX_TOKENS: ‘512’
-  TELEGRAM_TOKEN: 'TELEGRAM_TOKEN'
-  MISTRAL_INFERENCE_SERVICE: http://mistral-7b-instruct-v0-3.demo-models-deploy.svc.cluster.local
+  ELASTICSEARCH_HOST: {{ .Values.data.elasticsearchHost }}
+  ELASTICSEARCH_USERNAME: {{ .Values.data.elasticsearchUsername }}
+  ELASTICSEARCH_PASSWORD: {{ .Values.data.elasticsearchPassword }}
+  ELASTICSEARCH_DOCUMENT_INDEX: {{ .Values.data.elasticsearchDocumentIndex }}
+  ELASTICSEARCH_TELEGRAM_INDEX: {{ .Values.data.elasticsearchTelegramIndex }}
+  TENSORFLOW_HUB_EMBEDDING_MODEL_URL: {{ .Values.data.tensorflowHubEmbeddingModelUrl }}
+  GOOGLE_API_KEY: {{ .Values.data.googleApiKey }}
+  GOOGLE_MODEL: {{ .Values.data.googleModel }}
+  GOOGLE_MODEL_MAX_TOKENS: {{ .Values.data.googleModelMaxTokens }}
+  TELEGRAM_TOKEN: {{ .Values.data.telegramToken }}
+  MISTRAL_INFERENCE_SERVICE: {{ .Values.data.mistralInferenceService }}

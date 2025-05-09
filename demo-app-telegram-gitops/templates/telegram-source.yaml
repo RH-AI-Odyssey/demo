@@ -19,7 +19,7 @@ spec:
       name: {{ .Values.app }}
   source:
     properties:
-      authorizationToken: 'TELEGRAM_TOKEN'
+      authorizationToken: {{ .Values.data.telegramToken }}
     ref:
       apiVersion: camel.apache.org/v1alpha1
       kind: Kamelet
