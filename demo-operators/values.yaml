@@ -12,3 +12,4 @@ openshiftDevSpaces: devspaces
 openshiftPipelines: openshift-pipelines-operator-rh
 openshiftServerless: serverless-operator
 openshiftServiceMesh: servicemeshoperator
+webTerminal: web-terminal
