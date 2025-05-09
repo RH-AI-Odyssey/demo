@@ -309,12 +309,13 @@ helm install rhoai-config demo-operator-rhoai-config/ -n redhat-ods-applications
 echo_task "Operators components installed!"
 
 ##### Model Registries #####
+##### Disable to catch new deployment ######
 
-until oc wait -n redhat-ods-applications --for='condition=Available' deployment/model-registry-operator-controller-manager &> /dev/null
-do
-    echo "Waiting for the model-registry-operator-controller-manager deployment to be available..."
-    sleep 10
-done
+# until oc wait -n redhat-ods-applications --for='condition=Available' deployment/model-registry-operator-controller-manager &> /dev/null
+# do
+#     echo "Waiting for the model-registry-operator-controller-manager deployment to be available..."
+#     sleep 10
+# done
 
 echo_task "Installing Database to Model Registry"
 
