@@ -9,7 +9,7 @@ metadata:
 data:
   ELASTICSEARCH_HOST: {{ .Values.data.elasticsearchHost }}
   ELASTICSEARCH_USERNAME: {{ .Values.data.elasticsearchUsername }}
-  ELASTICSEARCH_PASSWORD: {{ .Values.data.elasticsearchPassword }}
+  ELASTICSEARCH_PASSWORD: elasticsearch_password
   ELASTICSEARCH_DOCUMENT_INDEX: {{ .Values.data.elasticsearchDocumentIndex }}
   ELASTICSEARCH_TELEGRAM_INDEX: {{ .Values.data.elasticsearchTelegramIndex }}
   TENSORFLOW_HUB_EMBEDDING_MODEL_URL: {{ .Values.data.tensorflowHubEmbeddingModelUrl }}
