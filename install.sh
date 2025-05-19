@@ -353,8 +353,6 @@ echo_task "MinIO installed!"
 echo_task "deploying models & runtimes serving"
 
 new_project demo-models-deploy
-
-oc create secret generic hf-token-secret --from-literal=token=changeme -n demo-models-deploy
 mc mb demo-minio/models
 
 echo_task "models & runtimes serving deployed"
