@@ -157,6 +157,15 @@ install_minio_cli
 
 echo_task "MinIO CLI installed!"
 
+##### Scale CPU nodes #####
+echo_task "Scaling CPU nodes"
+
+MACHINESET=$(oc get machineset.machine.openshift.io -n openshift-machine-api -o jsonpath='{.items[0].metadata.name}')
+oc scale --replicas=2 machineset $MACHINESET -n openshift-machine-api
+sleep 10
+
+echo_task "CPU nodes scaled!"
+
 #### GitLab ####
 echo_task "Installing GitLab"
 helm repo add gitlab-operator https://gitlab.com/api/v4/projects/18899486/packages/helm/stable
@@ -185,15 +194,7 @@ GITLAB_ACCESS_TOKEN=$(curl --data "grant_type=password&username=${GITLAB_ADMIN_U
 GITLAB_TOKEN=$(curl --request POST --header "Authorization: Bearer ${GITLAB_ACCESS_TOKEN}" --data "name=rhdh_token" --data "expires_at=2025-11-01" \
      --data "scopes[]=api,read_repository,write_repository" "https://${GITLAB_ROUTE}/api/v4/users/1/personal_access_tokens"  | jq -r '.token')
 
-##### Scale nodes #####
-echo_task "Scaling CPU nodes"
-
-MACHINESET=$(oc get machineset.machine.openshift.io -n openshift-machine-api -o jsonpath='{.items[0].metadata.name}')
-oc scale --replicas=2 machineset $MACHINESET -n openshift-machine-api
-sleep 10
-
-echo_task "CPU nodes scaled!"
-
+##### Install & Scale GPU nodes #####
 echo_task "Installing cluster config"
 
 helm install demo-cluster-config demo-cluster-config --set infraName=$INFRA_NAME --set subnet=$SUBNET --set availabilityZone=$AVAILABILITYZONE --set region=$REGION
