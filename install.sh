@@ -1,5 +1,9 @@
 #!/bin/bash
 
+##### Flag to Install #####
+INSTALL_TELEGRAM_DEMO=true
+INSTALL_DEV_DEMO=false
+
 ##### Variables #####
 OCP_DOMAIN=$(oc get IngressController default -n openshift-ingress-operator -o json | jq -r '.status.domain')
 INFRA_NAME=$(oc get infrastructure cluster -o json | jq -r '.status.infrastructureName')
@@ -134,6 +138,73 @@ new_python_project() {
 echo_task() {
     echo "##### $1 #####"
     sleep 1
+}
+
+installl_telegram_demo(){
+    ##### App Telegram Pipeline #####
+    echo_task "Installing App Telegram Pipeline"
+    sed -i 's/elasticsearch_password/'"${ELASTIC_PASSWORD}"'/' demo-app-telegram-pipeline-gitops/templates/configmap.yaml
+    new_python_project demo-app-telegram-pipeline
+    sleep 2
+    oc label namespace demo-app-telegram-pipeline "opendatahub.io/dashboard=true"
+    sleep 2
+    until oc wait --for='condition=Available' deployment/demo-app-telegram-pipeline -n demo-app-telegram-pipeline &> /dev/null
+    do
+        echo "Waiting for the demo-app-telegram-pipeline deployment to be available..."
+        sleep 10
+    done
+    mc admin config set demo-minio/ notify_webhook:index-document endpoint="http://demo-app-telegram-pipeline.demo-app-telegram-pipeline.svc.cluster.local:8080/index_document"
+    sleep 2
+    mc admin service restart demo-minio/
+    sleep 10
+    mc event add --event "put" demo-minio/telegram-pipelines arn:minio:sqs::index-document:webhook
+    sleep 2
+
+    ##### App Telegram #####
+    echo_task "Installing App Telegram"
+    sed -i 's/elasticsearch_password/'"${ELASTIC_PASSWORD}"'/' demo-app-telegram-gitops/templates/configmap.yaml
+    new_python_project demo-app-telegram
+    sleep 2
+    until oc wait --for='condition=Available' deployment/demo-app-telegram -n demo-app-telegram &> /dev/null
+    do
+        echo "Waiting for the demo-app-telegram deployment to be available..."
+        sleep 10
+    done
+
+    echo_task "App Telegram installed!"
+}
+
+install_developer_demo(){
+    ##### Install RHDH plugins server #####
+    echo_task "Installing Dynamic RHDH plugins server"
+    # fail if already deployed
+    /bin/bash deploy-rhdh-plugins.sh
+
+    # /bin/bash update-rhdh-plugins.sh
+
+
+    ##### Install quarkus app #####
+
+    sudo yum -y install java-21-openjdk-devel
+
+    ./rhdh-ai-embedder/mvnw -f rhdh-ai-embedder/pom.xml clean package -Dquarkus.container-image.build=true -Dquarkus.openshift.deploy=true -Dquarkus.openshift.env.vars.elastic-password=${ELASTIC_PASSWORD} > .mvn.log  
+
+
+    ##### Add demo-payment repository #####
+    DEVSPACES_ROUTE=$(oc get route devspaces -n demo-devspaces -o json | jq -r '.spec.host')
+
+    sed 's/devspaces_route/'"${DEVSPACES_ROUTE}"'/' demo-payment/catalog-info_model.yaml | sed 's/gitlab_route/'"${GITLAB_ROUTE}"'/' > ./catalog-info.yaml
+    mv catalog-info.yaml demo-payment/catalog-info.yaml
+
+    create_gitlab_repository demo-payment
+
+    GITLAB_DEMO_PAYMENT_PROJECT_ID=$(curl --request GET --header "Authorization: Bearer ${GITLAB_ACCESS_TOKEN}" "https://${GITLAB_ROUTE}/api/v4/projects?search=demo-payment" | jq -r '.[0].id')
+
+    curl --request POST --header "Authorization: Bearer ${GITLAB_ACCESS_TOKEN}" \
+        --url "https://${GITLAB_ROUTE}/api/v4/projects/${GITLAB_DEMO_PAYMENT_PROJECT_ID}/hooks" \
+        --data "push_events=true" \
+        --data "enable_ssl_verification=false" \
+        --data "url=http://embedder-demo-operators-comps.${OCP_DOMAIN}/injest" 
 }
 
 ##### Helm #####
@@ -358,78 +429,17 @@ mc mb demo-minio/models
 
 echo_task "models & runtimes serving deployed"
 
-##### App Telegram Pipeline #####
-echo_task "Installing App Telegram Pipeline"
-
-sed -i 's/elasticsearch_password/'"${ELASTIC_PASSWORD}"'/' demo-app-telegram-pipeline-gitops/templates/configmap.yaml
-
-new_python_project demo-app-telegram-pipeline
-sleep 2
-
-oc label namespace demo-app-telegram-pipeline "opendatahub.io/dashboard=true"
-sleep 2
-
-until oc wait --for='condition=Available' deployment/demo-app-telegram-pipeline -n demo-app-telegram-pipeline &> /dev/null
-do
-    echo "Waiting for the demo-app-telegram-pipeline deployment to be available..."
-    sleep 10
-done
-
-mc admin config set demo-minio/ notify_webhook:index-document endpoint="http://demo-app-telegram-pipeline.demo-app-telegram-pipeline.svc.cluster.local:8080/index_document"
-sleep 2
-
-mc admin service restart demo-minio/
-sleep 10
-
-mc event add --event "put" demo-minio/telegram-pipelines arn:minio:sqs::index-document:webhook
-sleep 2
-
-##### App Telegram #####
-echo_task "Installing App Telegram"
-
-sed -i 's/elasticsearch_password/'"${ELASTIC_PASSWORD}"'/' demo-app-telegram-gitops/templates/configmap.yaml
-
-new_python_project demo-app-telegram
-sleep 2
-
-until oc wait --for='condition=Available' deployment/demo-app-telegram -n demo-app-telegram &> /dev/null
-do
-    echo "Waiting for the demo-app-telegram deployment to be available..."
-    sleep 10
-done
-
-echo_task "App Telegram installed!"
-
-##### Install RHDH plugins server #####
-echo_task "Installing Dynamic RHDH plugins server"
-# fail if already deployed
-/bin/bash deploy-rhdh-plugins.sh
-
-# /bin/bash update-rhdh-plugins.sh
+###### TELEGRAM DEMO #####
+if [ $INSTALL_TELEGRAM_DEMO ] ; then
+    installl_telegram_demo
+fi
 
 
-##### Install quarkus app #####
+##### DEVELOPER HUB DEMO #####
+if [ $INSTALL_DEV_DEMO ] ; then
+    install_developer_demo
+fi
 
-sudo yum -y install java-21-openjdk-devel
-
-./rhdh-ai-embedder/mvnw -f rhdh-ai-embedder/pom.xml clean package -Dquarkus.container-image.build=true -Dquarkus.openshift.deploy=true -Dquarkus.openshift.env.vars.elastic-password=${ELASTIC_PASSWORD} > .mvn.log  
-
-
-##### Add demo-payment repository #####
-DEVSPACES_ROUTE=$(oc get route devspaces -n demo-devspaces -o json | jq -r '.spec.host')
-
-sed 's/devspaces_route/'"${DEVSPACES_ROUTE}"'/' demo-payment/catalog-info_model.yaml | sed 's/gitlab_route/'"${GITLAB_ROUTE}"'/' > ./catalog-info.yaml
-mv catalog-info.yaml demo-payment/catalog-info.yaml
-
-create_gitlab_repository demo-payment
-
-GITLAB_DEMO_PAYMENT_PROJECT_ID=$(curl --request GET --header "Authorization: Bearer ${GITLAB_ACCESS_TOKEN}" "https://${GITLAB_ROUTE}/api/v4/projects?search=demo-payment" | jq -r '.[0].id')
-
-curl --request POST --header "Authorization: Bearer ${GITLAB_ACCESS_TOKEN}" \
-     --url "https://${GITLAB_ROUTE}/api/v4/projects/${GITLAB_DEMO_PAYMENT_PROJECT_ID}/hooks" \
-     --data "push_events=true" \
-     --data "enable_ssl_verification=false" \
-     --data "url=http://embedder-demo-operators-comps.${OCP_DOMAIN}/injest" 
 
 
 ##### Clean & Restore #####
