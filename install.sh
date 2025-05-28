@@ -157,6 +157,34 @@ install_minio_cli
 
 echo_task "MinIO CLI installed!"
 
+#### GitLab ####
+echo_task "Installing GitLab"
+helm repo add gitlab-operator https://gitlab.com/api/v4/projects/18899486/packages/helm/stable
+
+helm install gitlab-operator gitlab-operator/gitlab-operator --create-namespace --namespace gitlab-system
+
+until oc wait -n gitlab-system --for='condition=Available' deployment/gitlab-controller-manager &> /dev/null
+do
+    echo "Waiting for the gitlab-operator deployment to be available..."
+    sleep 10
+done
+
+helm install gitlab demo-operator-gitlab --namespace gitlab-system --set domain=$OCP_DOMAIN
+
+until oc wait -n gitlab-system --for='condition=Available' deployment/gitlab-webservice-default &> /dev/null
+do
+    echo "Waiting for the gitlab deployment to be available..."
+    sleep 10
+done
+
+GITLAB_ADMIN_PASSWORD=$(oc get secret gitlab-gitlab-initial-root-password -n gitlab-system -o json | jq -r '.data.password' | base64 -d)
+echo_task "GitLab installed!"
+
+#GITLAB_ACCESS_TOKEN=$(curl --data "grant_type=password&username=root&password=Hkbv6GBFmHSbjsyJ8byxA2mwE4DcNb56CEPbzxBwF5XG3rP4GZQG3VgvFSF4RbOq" --request POST "https://gitlab.apps.cluster-v9xxj.v9xxj.sandbox3056.opentlc.com/oauth/token" | jq -r '.access_token')
+GITLAB_ACCESS_TOKEN=$(curl --data "grant_type=password&username=${GITLAB_ADMIN_USERNAME}&password=${GITLAB_ADMIN_PASSWORD}" --request POST "https://${GITLAB_ROUTE}/oauth/token" | jq -r '.access_token')
+GITLAB_TOKEN=$(curl --request POST --header "Authorization: Bearer ${GITLAB_ACCESS_TOKEN}" --data "name=rhdh_token" --data "expires_at=2025-11-01" \
+     --data "scopes[]=api,read_repository,write_repository" "https://${GITLAB_ROUTE}/api/v4/users/1/personal_access_tokens"  | jq -r '.token')
+
 ##### Scale nodes #####
 echo_task "Scaling CPU nodes"
 
@@ -194,34 +222,6 @@ ARGOCD_ROUTE=$(oc get route openshift-gitops-server -o json -n openshift-gitops 
 sleep 2
 
 echo_task "OpenShift GitOps Operator installed!"
-
-#### GitLab ####
-echo_task "Installing GitLab"
-helm repo add gitlab-operator https://gitlab.com/api/v4/projects/18899486/packages/helm/stable
-
-helm install gitlab-operator gitlab-operator/gitlab-operator --create-namespace --namespace gitlab-system
-
-until oc wait -n gitlab-system --for='condition=Available' deployment/gitlab-controller-manager &> /dev/null
-do
-    echo "Waiting for the gitlab-operator deployment to be available..."
-    sleep 10
-done
-
-helm install gitlab demo-operator-gitlab --namespace gitlab-system --set domain=$OCP_DOMAIN
-
-until oc wait -n gitlab-system --for='condition=Available' deployment/gitlab-webservice-default &> /dev/null
-do
-    echo "Waiting for the gitlab deployment to be available..."
-    sleep 10
-done
-
-GITLAB_ADMIN_PASSWORD=$(oc get secret gitlab-gitlab-initial-root-password -n gitlab-system -o json | jq -r '.data.password' | base64 -d)
-echo_task "GitLab installed!"
-
-#GITLAB_ACCESS_TOKEN=$(curl --data "grant_type=password&username=root&password=Hkbv6GBFmHSbjsyJ8byxA2mwE4DcNb56CEPbzxBwF5XG3rP4GZQG3VgvFSF4RbOq" --request POST "https://gitlab.apps.cluster-v9xxj.v9xxj.sandbox3056.opentlc.com/oauth/token" | jq -r '.access_token')
-GITLAB_ACCESS_TOKEN=$(curl --data "grant_type=password&username=${GITLAB_ADMIN_USERNAME}&password=${GITLAB_ADMIN_PASSWORD}" --request POST "https://${GITLAB_ROUTE}/oauth/token" | jq -r '.access_token')
-GITLAB_TOKEN=$(curl --request POST --header "Authorization: Bearer ${GITLAB_ACCESS_TOKEN}" --data "name=rhdh_token" --data "expires_at=2025-11-01" \
-     --data "scopes[]=api,read_repository,write_repository" "https://${GITLAB_ROUTE}/api/v4/users/1/personal_access_tokens"  | jq -r '.token')
 
 ##### ArgoCD #####
 echo_task "Installing ArgoCD CLI"
