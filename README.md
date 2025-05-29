@@ -35,7 +35,7 @@ And wait for the magic...
 
 
 ### Additional config
-This demo install by deaulf Telegram (chatbot-rag) and Developer (devhub+devspaces) demos.
+This demo install by default Telegram (chatbot-rag) and Developer (devhub+devspaces) demos.
 you need to configurate a enviroment variables to select wich demo activate.
 
 if you want to enable only telegram demo:
