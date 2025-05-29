@@ -1,9 +1,5 @@
 #!/bin/bash
 
-##### Flag to Install #####
-INSTALL_TELEGRAM_DEMO=true
-INSTALL_DEV_DEMO=false
-
 ##### Variables #####
 OCP_DOMAIN=$(oc get IngressController default -n openshift-ingress-operator -o json | jq -r '.status.domain')
 INFRA_NAME=$(oc get infrastructure cluster -o json | jq -r '.status.infrastructureName')
@@ -430,13 +426,13 @@ mc mb demo-minio/models
 echo_task "models & runtimes serving deployed"
 
 ###### TELEGRAM DEMO #####
-if [ $INSTALL_TELEGRAM_DEMO ] ; then
+if [ "false" != "$INSTALL_TELEGRAM_DEMO" ] ; then
     installl_telegram_demo
 fi
 
 
 ##### DEVELOPER HUB DEMO #####
-if [ $INSTALL_DEV_DEMO ] ; then
+if [  "false" != "$INSTALL_DEV_DEMO" ] ; then
     install_developer_demo
 fi
 

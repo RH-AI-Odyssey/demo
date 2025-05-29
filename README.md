@@ -32,3 +32,20 @@ chmod +x install.sh
 ./install.sh
 ```
 And wait for the magic...
+
+
+### Additional config
+This demo install by deaulf Telegram (chatbot-rag) and Developer (devhub+devspaces) demos.
+you need to configurate a enviroment variables to select wich demo activate.
+
+if you want to enable only telegram demo:
+```
+export INSTALL_TELEGRAM_DEMO=true
+export INSTALL_DEV_DEMO=false
+``` 
+
+if you want to enable only developer demo:
+```
+export INSTALL_TELEGRAM_DEMO=false
+export INSTALL_DEV_DEMO=true
+``` 
