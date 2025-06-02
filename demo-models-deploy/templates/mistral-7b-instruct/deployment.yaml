@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Values.mistral.modelName }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
       app: {{ .Values.mistral.modelName }}

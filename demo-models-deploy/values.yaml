@@ -2,7 +2,7 @@ name: demo-models-deploy
 namespace: demo-models-deploy
 
 hfToken: 'HUGGINGFACE_TOKEN'
-
+replicas: 1
 mistral:
   modelName: mistral-7b-instruct-v0-3
   image: "vllm/vllm-openai:v0.7.3"
