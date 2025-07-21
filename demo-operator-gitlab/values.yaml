@@ -1,6 +1,6 @@
 app: demo-operator-gitlab
 namespace: gitlab-system
 
-version: 8.10.8
+version: 9.0.4
 ## This is replace $OCP_DOMAIN in install file
 domain: app.cluster.com
