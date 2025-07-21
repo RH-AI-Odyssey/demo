@@ -42,10 +42,14 @@ if you want to enable only telegram demo:
 ```
 export INSTALL_TELEGRAM_DEMO=true
 export INSTALL_DEV_DEMO=false
+chmod +x install.sh
+./install.sh
 ``` 
 
 if you want to enable only developer demo:
 ```
 export INSTALL_TELEGRAM_DEMO=false
 export INSTALL_DEV_DEMO=true
+chmod +x install.sh
+./install.sh
 ``` 
