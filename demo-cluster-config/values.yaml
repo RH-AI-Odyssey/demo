@@ -7,6 +7,6 @@ region:
 
 gpuMachineset:
   name: gpu-node
-  instance: g5.2xlarge
+  instance: g6.2xlarge
 
 replicas: 2
